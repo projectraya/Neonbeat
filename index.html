@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEONBEAT // Rhythm Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SCREEN: MAIN MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-bg-grid"></div>
+    <div class="menu-scanlines"></div>
+    <header class="menu-header">
+      <div class="logo-wrapper">
+        <span class="logo-bracket">[</span>
+        <h1 class="logo-title">NEON<span class="logo-accent">BEAT</span></h1>
+        <span class="logo-bracket">]</span>
+      </div>
+      <p class="logo-sub">// RHYTHM ENGINE v0.3 //</p>
+    </header>
+    <nav class="menu-nav">
+      <button class="menu-btn" id="btn-play" data-action="song-select">
+        <span class="btn-icon">▶</span> START GAME
+      </button>
+      <button class="menu-btn secondary" id="btn-stats" data-action="stats">
+        <span class="btn-icon">◈</span> MY STATS
+      </button>
+      <button class="menu-btn secondary" id="btn-howto" data-action="howto">
+        <span class="btn-icon">?</span> HOW TO PLAY
+      </button>
+    </nav>
+    <div class="menu-keys-hint">
+      <span>KEYS:</span>
+      <kbd>D</kbd><kbd>F</kbd><kbd>J</kbd><kbd>K</kbd>
+    </div>
+    <footer class="menu-footer"><span>USE HEADPHONES FOR BEST EXPERIENCE</span></footer>
+  </div>
+
+  <!-- SCREEN: SONG SELECT -->
+  <div id="screen-songselect" class="screen">
+    <div class="menu-bg-grid"></div>
+    <div class="menu-scanlines"></div>
+    <div class="songselect-panel">
+      <h2 class="panel-title">SELECT TRACK</h2>
+
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="file-input" accept="audio/*" multiple style="display:none" />
+        <div class="upload-icon">⊕</div>
+        <p class="upload-label">DROP AUDIO FILES HERE</p>
+        <p class="upload-sub">or click to browse — mp3, ogg, wav</p>
+      </div>
+
+      <div class="song-list" id="song-list">
+        <div class="song-list-empty" id="song-list-empty">No tracks loaded yet. Add files above.</div>
+      </div>
+
+      <!-- Controls shown after a song is selected -->
+      <div class="songselect-footer" id="songselect-footer" style="display:none">
+
+        <!-- BPM + Offset -->
+        <div class="bpm-display">
+          <label>DETECTED BPM</label>
+          <div class="bpm-value-row">
+            <button class="bpm-btn" id="bpm-half">÷2</button>
+            <span id="bpm-display-val">—</span>
+            <button class="bpm-btn" id="bpm-double">×2</button>
+          </div>
+          <div class="bpm-status" id="bpm-status">Analysing…</div>
+          <div class="offset-row">
+            <label class="offset-label">OFFSET</label>
+            <input type="range" id="offset-slider" min="-500" max="500" value="0" step="5" />
+            <span id="offset-val">0ms</span>
+          </div>
+        </div>
+
+        <!-- Mode selector tabs -->
+        <div class="songselect-right">
+
+          <!-- Tab bar -->
+          <div class="mode-tabs">
+            <button class="mode-tab active" data-tab="auto">AUTO-CHART</button>
+            <button class="mode-tab" data-tab="recordings">RECORDINGS</button>
+          </div>
+
+          <!-- Auto-chart panel -->
+          <div class="mode-panel" id="panel-auto">
+            <div class="diff-row">
+              <label class="diff-label">DIFFICULTY</label>
+              <div class="diff-btns">
+                <button class="diff-btn" data-diff="easy">EASY</button>
+                <button class="diff-btn active" data-diff="medium">MEDIUM</button>
+                <button class="diff-btn" data-diff="hard">HARD</button>
+              </div>
+              <input type="hidden" id="difficulty-select" value="medium" />
+            </div>
+            <div class="mode-actions">
+              <button class="menu-btn" id="btn-launch-play">▶ PLAY</button>
+              <button class="menu-btn secondary" id="btn-launch-bot">🤖 BOT DEMO</button>
+            </div>
+          </div>
+
+          <!-- Recordings panel -->
+          <div class="mode-panel hidden" id="panel-recordings">
+            <div class="rec-slots" id="rec-slots">
+              <!-- Populated by JS -->
+            </div>
+            <div class="mode-actions">
+              <button class="menu-btn secondary" id="btn-launch-record">⏺ NEW RECORDING</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <button class="menu-btn secondary back-btn" id="btn-back-songselect">← BACK</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: SAVE SLOT PICKER (shown after recording ends) -->
+  <div id="screen-saveslot" class="screen">
+    <div class="overlay-panel" style="max-width:420px;width:90%">
+      <h2 class="panel-title">SAVE RECORDING</h2>
+      <p style="font-family:var(--font-mono);font-size:.75rem;color:rgba(255,255,255,.4);text-align:center;margin-bottom:1.2rem">
+        Choose a slot to save your chart to.
+      </p>
+      <div class="save-slots" id="save-slots">
+        <!-- Populated by JS -->
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:.6rem;justify-content:center">
+        <button class="menu-btn secondary" id="btn-saveslot-skip" style="min-width:140px">DISCARD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: HOW TO PLAY -->
+  <div id="screen-howto" class="screen">
+    <div class="overlay-panel">
+      <h2 class="panel-title">HOW TO PLAY</h2>
+      <ul class="howto-list">
+        <li><kbd>D</kbd> — Column 1 (far left)</li>
+        <li><kbd>F</kbd> — Column 2</li>
+        <li><kbd>J</kbd> — Column 3</li>
+        <li><kbd>K</kbd> — Column 4 (far right)</li>
+      </ul>
+      <p class="howto-tip">Hit notes as they reach the <span class="accent">hit zone</span> at the bottom.</p>
+      <p class="howto-tip" style="margin-top:.5rem">For <span class="accent">hold notes</span>, press and hold until the tail ends.</p>
+      <div class="timing-table">
+        <div class="timing-row perfect"><span>PERFECT</span><span>± 50ms</span></div>
+        <div class="timing-row good"><span>GOOD</span><span>± 120ms</span></div>
+        <div class="timing-row miss"><span>MISS</span><span>&gt; 120ms</span></div>
+      </div>
+      <button class="menu-btn" id="btn-back-howto">← BACK</button>
+    </div>
+  </div>
+
+  <!-- SCREEN: STATS -->
+  <div id="screen-stats" class="screen">
+    <div class="stats-panel">
+      <div class="stats-header">
+        <h2 class="panel-title" style="margin:0">MY STATS</h2>
+        <button class="menu-btn secondary back-btn" id="btn-back-stats">← BACK</button>
+      </div>
+      <div class="stats-content" id="stats-content">
+        <!-- Populated by StatsManager.render() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: GAME -->
+  <div id="screen-game" class="screen">
+    <div id="hud-top">
+      <div class="hud-block">
+        <label>SCORE</label>
+        <span id="hud-score">000000</span>
+      </div>
+      <div class="hud-block center">
+        <label id="hud-judgment-label">&nbsp;</label>
+        <span id="hud-combo">x0</span>
+      </div>
+      <div class="hud-block right">
+        <label id="hud-mode-label">MODE</label>
+        <span id="hud-bot-state">—</span>
+      </div>
+    </div>
+
+    <div id="hud-song-title">DEMO BEAT</div>
+    <canvas id="game-canvas"></canvas>
+
+    <div id="countdown-overlay" class="hidden">
+      <div id="countdown-number">3</div>
+      <div id="countdown-sub">GET READY</div>
+    </div>
+
+    <div id="record-banner" class="hidden">
+      <span>⏺ RECORDING</span>
+      <span id="record-time">0:00</span>
+    </div>
+
+    <div id="pause-overlay" class="hidden">
+      <div class="overlay-panel compact">
+        <h2 class="panel-title">PAUSED</h2>
+        <button class="menu-btn" id="btn-resume">▶ RESUME</button>
+        <button class="menu-btn secondary" id="btn-quit">✕ QUIT</button>
+      </div>
+    </div>
+
+    <div id="key-lights">
+      <div class="key-light" id="kl-0" data-key="D"><span>D</span></div>
+      <div class="key-light" id="kl-1" data-key="F"><span>F</span></div>
+      <div class="key-light" id="kl-2" data-key="J"><span>J</span></div>
+      <div class="key-light" id="kl-3" data-key="K"><span>K</span></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="overlay-panel results-panel">
+      <h2 class="panel-title">RESULTS</h2>
+      <div id="result-mode-badge" style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;color:rgba(255,255,255,.3);text-align:center;margin-bottom:.5rem"></div>
+      <div class="results-grid">
+        <div class="result-item"><label>SCORE</label><span id="res-score">0</span></div>
+        <div class="result-item"><label>MAX COMBO</label><span id="res-combo">0</span></div>
+        <div class="result-item perfect"><label>PERFECT</label><span id="res-perfect">0</span></div>
+        <div class="result-item good"><label>GOOD</label><span id="res-good">0</span></div>
+        <div class="result-item miss"><label>MISS</label><span id="res-miss">0</span></div>
+        <div class="result-item"><label>ACCURACY</label><span id="res-acc">0%</span></div>
+      </div>
+      <div class="result-rank" id="res-rank">S</div>
+      <div id="res-new-best" class="hidden" style="font-family:var(--font-mono);font-size:.7rem;color:var(--clr-yellow);text-align:center;margin-bottom:.5rem;letter-spacing:.1em">★ NEW BEST RANK!</div>
+      <button class="menu-btn" id="btn-retry">↺ RETRY</button>
+      <button class="menu-btn secondary" id="btn-menu">⌂ MENU</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="src/bpm.js"></script>
+  <script src="src/fsm.js"></script>
+  <script src="src/notes.js"></script>
+  <script src="src/saves.js"></script>
+  <script src="src/stats.js"></script>
+  <script src="src/events.js"></script>
+  <script src="src/game.js"></script>
+  <script src="src/songselect.js"></script>
+
+</body>
+</html>
